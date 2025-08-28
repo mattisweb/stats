@@ -1,95 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>mattisweb Stats</title>
+  <title>Status Monitor</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f5f5f5;
       margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      padding: 2rem;
     }
-
-    .stats-container {
-      background: #fff;
-      padding: 2rem 3rem;
-      border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    h1 {
       text-align: center;
+      margin-bottom: 2rem;
     }
-
-    .stats-container h1 {
-      margin-bottom: 1rem;
-      font-size: 1.8rem;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     }
-
-    .stats {
-      display: flex;
-      justify-content: center;
-      gap: 3rem;
-      margin-top: 1rem;
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
     }
-
-    .stat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    th {
+      background: #2c3e50;
+      color: white;
     }
-
-    .stat .number {
-      font-size: 2rem;
+    .status-up {
+      color: green;
       font-weight: bold;
-      color: #2c3e50;
     }
-
-    .stat .label {
-      font-size: 0.9rem;
-      color: #777;
+    .status-down {
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="stats-container">
-    <h1>Website Stats</h1>
-    <div class="stats">
-      <div class="stat">
-        <div class="number" data-target="1245">0</div>
-        <div class="label">Users</div>
-      </div>
-      <div class="stat">
-        <div class="number" data-target="8765">0</div>
-        <div class="label">Page Views</div>
-      </div>
-      <div class="stat">
-        <div class="number" data-target="325">0</div>
-        <div class="label">Comments</div>
-      </div>
-    </div>
-  </div>
+  <h1>Website Status</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Website</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="status-table">
+      <!-- Dynamisch per JS -->
+    </tbody>
+  </table>
 
   <script>
-    // Small counter animation
-    const counters = document.querySelectorAll('.number');
-    counters.forEach(counter => {
-      const target = +counter.getAttribute('data-target');
-      let count = 0;
-      const step = target / 100; // smooth increment
-      const updateCounter = () => {
-        if (count < target) {
-          count += step;
-          counter.textContent = Math.floor(count);
-          requestAnimationFrame(updateCounter);
-        } else {
-          counter.textContent = target;
-        }
-      };
-      updateCounter();
-    });
+    // Liste der zu prüfenden Seiten
+    const sites = [
+      { name: "Mattisweb", url: "https://mattisweb.de/" },
+      { name: "Hyper-b", url: "https://hyper-b.mattisweb.de/" },
+      { name: "Mini Games", url: "https://mattisweb.de/games/" },
+      { name: "ILoveBedwars", url: "https://mattisweb.de/ilovebedwars/" },
+      { name: "JS Obfuscator", url: "https://mattisweb.de/obfuscator/" }
+    ];
+
+    const table = document.getElementById("status-table");
+
+    // Funktion zum Status-Check
+    async function checkSite(site) {
+      let statusText, statusClass;
+      try {
+        const response = await fetch(site.url, { method: "HEAD", mode: "no-cors" });
+        // Bei no-cors kann man keinen Status lesen, aber Fehler werden trotzdem gefangen
+        statusText = "Online";
+        statusClass = "status-up";
+      } catch (error) {
+        statusText = "Offline";
+        statusClass = "status-down";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><a href="${site.url}" target="_blank">${site.name}</a></td>
+        <td class="${statusClass}">${statusText}</td>
+      `;
+      table.appendChild(row);
+    }
+
+    // Alle Seiten prüfen
+    sites.forEach(site => checkSite(site));
   </script>
 </body>
 </html>
